@@ -82,6 +82,7 @@ class HeartGameClient:
 
     # -------------------- MENU -------------------- #
     def show_menu(self):
+        self.fetch_highscore()
         self.clear_screen()
 
         tk.Label(self.root, text="💖 HEART GUESS GAME 💖",
@@ -97,6 +98,15 @@ class HeartGameClient:
 
         tk.Label(self.root, text=f"High Score: {self.high_score}",
                  font=("Arial", 16), fg="white", bg="black").pack(pady=20)
+
+    def fetch_highscore(self):
+        try:
+            r = requests.get(f"{SERVER_URL}/highscore/{self.username}")
+            if r.status_code == 200:
+                data = r.json()
+                self.high_score = data.get("highscore", self.high_score)
+        except Exception as e:
+            print("Failed to fetch highscore:", e)
 
     # -------------------- START GAME -------------------- #
     def start_game(self):
@@ -166,14 +176,11 @@ class HeartGameClient:
         tk.Label(self.root, text="🏆 Leaderboard 🏆",
                  font=("Arial Rounded MT Bold", 28),
                  fg="#ff6699", bg="black").pack(pady=30)
-        try:
-            r = requests.get(f"{SERVER_URL}/leaderboard")
-            data = r.json().get("leaderboard", [])
-        except Exception:
-            data = []
+        
+        data = self.fetch_leaderboard_data()
 
         if not data:
-            tk.Label(self.root, text="No scores yet!",
+            tk.Label(self.root, text="No scores yet! Or server is down.",
                      font=("Arial", 16), fg="white", bg="black").pack(pady=20)
         else:
             table = ttk.Treeview(self.root, columns=("Rank", "Player", "Score"), show="headings", height=10)
@@ -190,6 +197,15 @@ class HeartGameClient:
             table.pack(pady=10)
 
         ttk.Button(self.root, text="⬅️ Back", command=self.show_menu).pack(pady=20)
+
+    def fetch_leaderboard_data(self):
+        try:
+            r = requests.get(f"{SERVER_URL}/leaderboard")
+            if r.status_code == 200:
+                return r.json().get("leaderboard", [])
+        except Exception as e:
+            print(f"Failed to fetch leaderboard: {e}")
+        return []
 
     # -------------------- UTILITY -------------------- #
     def clear_screen(self):

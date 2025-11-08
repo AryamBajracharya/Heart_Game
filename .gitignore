@@ -1,5 +1,5 @@
 .venv/
 __pycache__/
 *.pyc
-server/models.db
 .vscode/
+server/models.db

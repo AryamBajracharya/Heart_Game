@@ -65,11 +65,15 @@ def submit_score():
 # -------------------- LEADERBOARD -------------------- #
 @app.route("/leaderboard", methods=["GET"])
 def leaderboard():
+    print("--- LEADERBOARD REQUEST ---")
+    print("Current users:", users)
     leaderboard_data = [
         {"username": u, "highscore": info["highscore"]}
         for u, info in users.items()
     ]
     leaderboard_data.sort(key=lambda x: x["highscore"], reverse=True)
+    print("Leaderboard data being sent:", leaderboard_data)
+    print("--------------------------")
     return jsonify({"leaderboard": leaderboard_data}), 200
 
 # -------------------- HIGHSCORE -------------------- #
